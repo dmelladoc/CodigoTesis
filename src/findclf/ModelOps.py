@@ -57,7 +57,7 @@ def _create_EfficientNetV2(n_labels: int) -> nn.Module:
         nn.Dropout(p=0.5),
         nn.Linear(in_features=1280, out_features=512, bias=True),
         nn.ReLU(inplace=True),
-        nn.Linear(in_features=512, out_features=n_labels, bias=True),
+        nn.Linear(in_features=512, out_features=n_labels, bias=False),
     )
 
     # Use feature extractor to get feature layer

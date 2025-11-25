@@ -6,7 +6,7 @@ from os.path import join as path_join
 import cv2
 import numpy as np
 
-from correlax.ImageIO import clahefusion, load_dicom, load_image
+from findclf.ImageIO import clahefusion, load_dicom, load_image
 
 
 def main(args):

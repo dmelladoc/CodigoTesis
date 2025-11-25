@@ -1,7 +1,9 @@
 from itertools import product
-from typing import Tuple
+from typing import Sequence, Tuple
 
 import numpy as np
+from cv2 import INTER_LINEAR, resize
+from scipy.signal import convolve2d
 
 
 def crop_window(
@@ -103,3 +105,32 @@ def create_kernel(window_size: int, stride: int, norm: bool = True):
     if not norm:
         return kernel
     return kernel / np.sum(kernel)
+
+
+def apply_overlap_kernel(
+    predmap: np.ndarray,
+    kernel: np.ndarray,
+    image_shape: Sequence[int],
+    window_size: int,
+) -> np.ndarray:
+    """Applays overlap kernel to prediction map.
+
+    Args:
+        predmap (np.ndarray): Prediction map to be convolved.
+        kernel (np.ndarray): Overlap kernel.
+        image_shape (Sequence[int]): Original image shape.
+        window_size (int): Size of the window used.
+    Returns:
+        np.ndarray: Resized prediction map after applying the kernel.
+    """
+    half = window_size // 2
+    out_shape = image_shape + np.array([window_size, window_size])
+    convmap = convolve2d(predmap, kernel, mode="full")
+    resized = resize(convmap, out_shape, interpolation=INTER_LINEAR)
+    return resized[half:-half, half:-half]
+
+
+def batcher(iterable, batch_size: int = 1):
+    length = len(iterable)
+    for ndx in range(0, length, batch_size):
+        yield iterable[ndx : min(ndx + batch_size, length)]
