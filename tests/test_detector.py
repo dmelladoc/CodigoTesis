@@ -7,7 +7,7 @@ import cv2
 import numpy as np
 import torch
 
-from correlax.ImageIO import clahefusion, get_ROIbox, load_dicom
+from findclf.ImageIO import clahefusion, get_ROIbox, load_dicom
 from findclf.ModelOps import Detector
 
 
@@ -17,7 +17,7 @@ def main(args):
         raise FileNotFoundError(f"Input file not found at {args.input}")
 
     # open DICOM file and extract the image
-    if not splitext(args.input)[1].lower() in [".dcm", ".dicom"]:
+    if splitext(args.input)[1].lower() not in [".dcm", ".dicom"]:
         raise ValueError(
             "Input file must be a DICOM file with .dcm or .dicom extension"
         )

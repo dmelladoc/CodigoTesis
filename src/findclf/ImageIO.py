@@ -1,10 +1,13 @@
 import os
+from glob import glob
 from typing import Sequence, Tuple
 
 import cv2
 import numpy as np
 import pydicom as dcm
 from pydicom.pixel_data_handlers import apply_voi_lut
+
+from .Defaults import SUPPORTED_IMAGE_FORMATS
 
 
 def normalize(image: np.ndarray) -> np.ndarray:
@@ -174,3 +177,34 @@ def get_ROIbox(image: np.ndarray) -> np.ndarray:
     # get bounding box
     x, y, w, h = cv2.boundingRect(contour)  # x, y, width, height
     return np.array([x, y, x + w, y + h], dtype=np.int64)
+
+
+def _check_image_format(path: str) -> bool:
+    """
+    Check if the file at a given path has a supported image format.
+    """
+    _, ext = os.path.splitext(path)
+    return ext.lower() in SUPPORTED_IMAGE_FORMATS
+
+
+def get_image_paths(input_paths: Sequence[str]) -> Sequence[str]:
+    image_paths = []
+    if len(input_paths) == 0:
+        raise ValueError("No input paths provided.")
+
+    # check if paths are files or directories
+    for path in input_paths:
+        # if path does not exist, then raise error
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Input path {path} does not exist.")
+        # if path is a file and is a supported image, add to list
+        if os.path.isfile(path) and _check_image_format(path):
+            image_paths.append(path)
+        # if path is a directory, add all files in directory to list
+        elif os.path.isdir(path):
+            files = glob(os.path.join(path, "*"))
+            # Check for all supported images
+            files = [f for f in files if _check_image_format(f)]
+            image_paths.extend(files)
+
+    return image_paths
