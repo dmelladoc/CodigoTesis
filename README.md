@@ -1,0 +1,32 @@
+# Inteligencia Artificial Explicable para la Detección y Análisis de Hallazgos Mamográficos como apoyo al Diagnóstico de Cáncer de Mama
+
+Codigos desarrollados dentro del transcurso de la tesis para reproducir los experimentos realizados.
+
+## Organización
+El repositorio está organizado de manera de poder utilizarlo como una librería `src/correlax`, asi como tambien presentar codigos desarrollados dentro del proceso, y algunos notebooks desarrollados con distinto nivel de documentacion. (carpeta `unmaintained/`). 
+
+## Requerimientos
+
+### Dataset
+Para el entrenamiento de los modelos desarollados se utilizó [VinDr-Mammo](https://vindr.ai/datasets/mammo).
+
+### Codigo
+Los requerimientos de librerías se estan manejando mediante [`uv`](https://astral.sh/uv).
+
+```bash
+# Clonar el repositorio
+#TODO: colocar el path aqui del repositorio
+
+# Sincronizar y crear el ambiente con uv
+uv sync
+
+# Finalmente ejecutar un script
+# Detector de hallazgos
+uv run findclf.py 
+# Detección + Explicaciones
+uv run eval_correlax.py
+```
+
+**Nota**: Dentro de los requerimientos, utilizamos `pytorch` como framework para ML. 
+Dentro del repositorio está por defecto la versión para aceleradores Intel ARC (Pytorch xpu).
+Quedan pendientes la deteccion automática del acelerador disponible (CUDA, AppleSilicon, CPU)
