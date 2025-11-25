@@ -12,9 +12,7 @@ def _permute(image: torch.Tensor) -> torch.Tensor:
     return image.permute(0, 3, 1, 2)
 
 
-def get_transforms(
-    input_shape: Tuple[int, int] = (256, 256), expand_dims: bool = True
-) -> transforms.Compose:
+def get_transforms(input_shape: Tuple[int, int] = (256, 256)) -> transforms.Compose:
     """
     Default transforms for our models.
 
@@ -24,13 +22,8 @@ def get_transforms(
     Returns:
         transforms.Compose: Composed transforms including dimension expansion, permutation, resizing, and type conversion.
     """
-    transform_list = []
-    # Add expand_dims transform if specified
-    if expand_dims:
-        transform_list += [transforms.Lambda(_expand_dims)]
-
-    # Add permutation, resizing, and type conversion transforms
-    transform_list += [
+    transform_list = [
+        transforms.Lambda(_expand_dims),
         transforms.Lambda(_permute),
         transforms.Resize(
             input_shape,
@@ -39,5 +32,4 @@ def get_transforms(
         ),
         transforms.ToDtype(torch.float32, scale=True),
     ]
-
     return transforms.Compose(transform_list)

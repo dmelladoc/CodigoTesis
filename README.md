@@ -15,14 +15,17 @@ Los requerimientos de librerías se estan manejando mediante [`uv`](https://astr
 
 ```bash
 # Clonar el repositorio
-#TODO: colocar el path aqui del repositorio
+git clone https://github.com/dmelladoc/CodigoTesis.git
 
 # Sincronizar y crear el ambiente con uv
 uv sync
 
 # Finalmente ejecutar un script
 # Detector de hallazgos
-uv run findclf.py 
+uv run findclf_image.py [carpeta o imagenes]
+# entregar mascaras de hallazgos
+uv run findflf_image.py ruta/a/imagen.dcm --mask --threshold 0.25
+
 # Detección + Explicaciones
 uv run eval_correlax.py
 ```

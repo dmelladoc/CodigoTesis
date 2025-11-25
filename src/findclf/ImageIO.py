@@ -208,3 +208,15 @@ def get_image_paths(input_paths: Sequence[str]) -> Sequence[str]:
             image_paths.extend(files)
 
     return image_paths
+
+
+def save_image(image, path: str):
+    if len(image.shape) == 3:
+        image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    cv2.imwrite(path, image)
+
+
+def mix_heatmap(image, heatmap, alpha=0.5) -> np.ndarray:
+    color_heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+    weighted_heatmap = cv2.addWeighted(image, 1 - alpha, color_heatmap, alpha, 0)
+    return weighted_heatmap
