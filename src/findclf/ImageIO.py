@@ -216,7 +216,7 @@ def save_image(image, path: str):
     cv2.imwrite(path, image)
 
 
-def mix_heatmap(image, heatmap, alpha=0.5) -> np.ndarray:
-    color_heatmap = cv2.applyColorMap(heatmap, cv2.COLORMAP_JET)
+def mix_heatmap(image, heatmap, alpha=0.5, cmap=cv2.COLORMAP_JET) -> np.ndarray:
+    color_heatmap = cv2.applyColorMap(heatmap, cmap)
     weighted_heatmap = cv2.addWeighted(image, 1 - alpha, color_heatmap, alpha, 0)
     return weighted_heatmap

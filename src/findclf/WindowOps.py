@@ -130,6 +130,17 @@ def apply_overlap_kernel(
     return resized[half:-half, half:-half]
 
 
+def resize_map_to_image(
+    predmap: np.ndarray,
+    image_shape: Sequence[int],
+    window_size: int,
+) -> np.ndarray:
+    half = window_size // 2
+    out_shape = image_shape + np.array([window_size, window_size])
+    resized = resize(predmap, out_shape, interpolation=INTER_LINEAR)
+    return resized[half:-half, half:-half]
+
+
 def batcher(iterable, batch_size: int = 1):
     length = len(iterable)
     for ndx in range(0, length, batch_size):
