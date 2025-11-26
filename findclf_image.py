@@ -41,12 +41,13 @@ def main(args):
 
     # Load detector
     # check if detector is available
-    if os.path.exists(args.detector_model) and args.detector_type == "frcnn":
-        detector = Detector(modelpath=args.detector_model, device=device)
-        print("Using trained Faster R-CNN breast detector.")
-    else:
-        detector = None
-        print("Using Otsu's thresholding for breast detection.")
+    if args.roi:
+        if os.path.exists(args.detector_model) and args.detector_type == "frcnn":
+            detector = Detector(modelpath=args.detector_model, device=device)
+            print("Using trained Faster R-CNN breast detector.")
+        else:
+            detector = None
+            print("Using Otsu's thresholding for breast detection.")
 
     # Load classifier model
     classifier = load_classifier(
@@ -61,18 +62,36 @@ def main(args):
 
     # Process each image
     for imfile in tqdm(image_paths, desc="Processing images", unit="img"):
+        # make folder for image
+        outfile_dir = os.path.join(args.outpath, os.path.basename(imfile))
+        os.makedirs(outfile_dir, exist_ok=True)
+
         # load image
         if imfile.lower().endswith((".dcm", ".dicom")):
             image = ImageIO.load_dicom(imfile)
             image = (image * 255).astype(np.uint8)  # return to 0-255
-            image = ImageIO.clahefusion(image, thresholds=[1.0, 2.0])
+
         else:
             image = ImageIO.load_image(imfile)
-            # we assume that if a non-dicom image is loaded, it is already processed with clahe
+            # we assume that if a non-dicom image is loaded is gray-scale and in 0-255 range
 
-        # make folder for image
-        outfile_dir = os.path.join(args.outpath, os.path.basename(imfile))
-        os.makedirs(outfile_dir, exist_ok=True)
+        if args.roi:
+            # get breast ROI
+            if detector is not None:
+                bbox = detector.get_roi(image[..., np.newaxis])
+            else:
+                bbox = ImageIO.get_ROIbox(image)
+
+        # Apply CLAHE fusion
+        image = ImageIO.clahefusion(image, thresholds=[1.0, 2.0])
+        # crop to ROI if applicable
+        if args.roi:
+            image = image[bbox[1] : bbox[3], bbox[0] : bbox[2]]
+            # save the original cropped image for reference
+            ImageIO.save_image(
+                image,
+                os.path.join(outfile_dir, f"cropped_{os.path.basename(imfile)}.png"),
+            )
 
         # divide the image into windows
         windows, (dx, dy) = get_windows(image, args.window_size, args.stride)
@@ -166,8 +185,8 @@ if __name__ == "__main__":
         "--detector-type",
         "-d",
         choices=["otsu", "frcnn"],
-        default="frcnn",
-        help="Type of breast detector to use: 'otsu' for Otsu's thresholding, 'frcnn' for a trained Faster R-CNN model. Default is 'frcnn' if available (must find args.detector-model path).",
+        default="otsu",
+        help="Type of breast detector to use: 'otsu' for Otsu's thresholding, 'frcnn' for a trained Faster R-CNN model. Default is Otsu.",
     )
     parser.add_argument(
         "--detector-model",
@@ -214,6 +233,11 @@ if __name__ == "__main__":
         "--mask",
         action="store_true",
         help="If set, output a mask image indicating detected regions. By default will output heatmaps overlaid on the original image.",
+    )
+    parser.add_argument(
+        "--roi",
+        action="store_true",
+        help="If set, use breast ROI to limit sliding window area (requires detector).",
     )
     args = parser.parse_args()
     main(args)

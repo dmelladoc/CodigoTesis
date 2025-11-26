@@ -22,13 +22,17 @@ uv sync
 
 # Finalmente ejecutar un script
 # Detector de hallazgos
-uv run findclf_image.py [carpeta o imagenes]
+uv run findclf_image.py [carpeta o imagenes] --roi
 # entregar mascaras de hallazgos
-uv run findflf_image.py ruta/a/imagen.dcm --mask --threshold 0.25
+uv run findflf_image.py ruta/a/imagen.dcm --roi --mask --threshold 0.25
 
 # Detección + Explicaciones
 uv run eval_correlax.py
 ```
+
+Algunos consideraciones:
+- por temas de adaptabilidad, por defecto está desabilitado la deteccion de RoI. Para habilitarlo uno selecciona `--roi`. 
+Para seleccionar mediante otsu, se agrega el argumento `--detector-type otsu` por defecto, tambien puede utilizar un detector Faster R-CNN `--detector-type fcrnn`
 
 **Nota**: Dentro de los requerimientos, utilizamos `pytorch` como framework para ML. 
 Dentro del repositorio está por defecto la versión para aceleradores Intel ARC (Pytorch xpu).
