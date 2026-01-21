@@ -132,7 +132,7 @@ def main(args):
                 outputs = crxr(window_tensor)
                 # Append each one to their corresponding list
                 window_outputs["Predictions"].append(
-                    outputs["prediction"].detach().tolist()
+                    outputs["ImagePrediction"].detach().tolist()
                 )
                 window_outputs["CorrDist"].append(outputs["CorrDist"].item())
                 window_outputs["CorrPred"].append(outputs["CorrPred"].detach().tolist())
@@ -165,6 +165,7 @@ def main(args):
             )
 
             # Correlation map
+            # TODO: verify normalization, looks weird at output. Maybe normalize between max of absolute values?
             corr_map = mat_outputs["CorrPred"][:, :, idx_label]
             # Normalize from -1 to 1 into 0-255
             corr_map = ((corr_map + 1) / 2 * 255).astype(np.uint8)
@@ -173,7 +174,10 @@ def main(args):
                 corr_map, kernel, image.shape[:2][::-1], args.window_size
             )
             corr_overlay = ImageIO.mix_heatmap(
-                image, corr_map, alpha=0.5, cmap=COLORMAP_TWILIGHT
+                image,
+                (corr_map * 255).astype(np.uint8),
+                alpha=0.5,
+                cmap=COLORMAP_TWILIGHT,
             )
             ImageIO.save_image(
                 corr_overlay,
@@ -192,7 +196,7 @@ def main(args):
             image,
             (corr_dist_map * 255).astype(np.uint8),
             alpha=0.7,
-            cmap=COLORMAP_TWILIGHT,
+            cmap=COLORMAP_PLASMA,  # changed to plasma for better visibility
         )
         ImageIO.save_image(
             corrdist_overlay,
@@ -280,5 +284,6 @@ if __name__ == "__main__":
         default=40,
         help="Number of iterations for mask generation in CorRELAX. Default is 40.",
     )
+    # TODO: add option argument for output the maps without overlay. Useful for testing issues with normalization of correlation maps
     args = parser.parse_args()
     main(args)
