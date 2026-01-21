@@ -12,6 +12,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "torch>=2.7.0",
     "torchvision>=0.22.0",
+    "pytorch-triton-xpu>=3.3.0",
     "pandas>=2.3.3",
     "matplotlib>=3.10.7",
 ]
@@ -28,15 +29,18 @@ module-name = ["findclf", "correlax"]
 
 [tool.uv.sources]
 torch = [
-    { index = "pytorch-cu130" }, 
+    { index = "pytorch-xpu" }, 
 ]
 torchvision = [
-    { index = "pytorch-cu130" }, 
+    { index = "pytorch-xpu" }, 
+]
+pytorch-triton-xpu = [
+    { index = "pytorch-xpu" }, 
 ]
 
 [[tool.uv.index]]
-name = "pytorch-cu130"
-url = "https://download.pytorch.org/whl/cu130"
+name = "pytorch-xpu"
+url = "https://download.pytorch.org/whl/xpu"
 explicit = true
 
 [dependency-groups]
