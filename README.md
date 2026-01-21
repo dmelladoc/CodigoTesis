@@ -30,7 +30,7 @@ uv sync
 # Detector de hallazgos
 uv run findclf_image.py [carpeta o imagenes] --roi
 # entregar mascaras de hallazgos
-uv run findflf_image.py ruta/a/imagen.dcm --roi --mask --threshold 0.25
+uv run findclf_image.py ruta/a/imagen.dcm --roi --mask --threshold 0.25
 
 # Detección + Explicaciones
 uv run eval_correlax.py
